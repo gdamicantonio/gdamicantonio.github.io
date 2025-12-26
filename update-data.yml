@@ -1,0 +1,24 @@
+name: Update Data
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Update Data
+        run: |
+          # Replace the following line with the actual command to update your CSV file
+          # For example, you might have a script in your repository
+          # that updates the CSV file using a tool like curl or wget
+          # Adjust this line according to your specific update command
+          ./update-csv.sh
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}

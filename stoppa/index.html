@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stoppa Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="table">
+            <div id="pot-info">Pot: <span id="pot-val">0</span></div>
+            <div id="message-area">Welcome</div>
+            
+            <div id="opponents">
+                <!-- Opponents 1, 2, 3, 4 -->
+                <div class="player p1" id="p1"></div>
+                <div class="player p2" id="p2"></div>
+                <div class="player p3" id="p3"></div>
+                <div class="player p4" id="p4"></div>
+            </div>
+
+            <div id="my-area">
+                <div id="my-info">
+                    <span id="my-name">Me</span>
+                    <span id="my-fiches">Fiches: 20</span>
+                </div>
+                <div id="my-cards"></div>
+                <div id="my-prev-cards"></div>
+            </div>
+
+            <div id="controls">
+                <button onclick="uiAction('fold')">Fold</button>
+                <button onclick="uiAction('call')">Call</button>
+                <button onclick="uiAction('raise')">Raise</button>
+                <div id="declare-controls" style="display:none;">
+                    <input type="number" id="decl-val" value="0">
+                    <button onclick="uiAction('declare')">Declare</button>
+                </div>
+            </div>
+            
+            <button id="start-btn" onclick="startGame()">Start Round</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        let game = new StoppaGame(1);
+        let myIdx = 0; // Assuming P1 is human
+
+        function startGame() {
+            document.getElementById('start-btn').style.display = 'none';
+            game.startRound();
+            updateUI();
+        }
+
+        game.onStateUpdate = updateUI;
+
+        function updateUI() {
+            document.getElementById('pot-val').innerText = game.pot;
+            document.getElementById('message-area').innerText = game.message;
+
+            // Render Me
+            let me = game.players[0];
+            document.getElementById('my-fiches').innerText = `Fiches: ${me.fiches} (Bet: ${me.currentBet})`;
+            
+            let cardsHtml = '';
+            for(let c of me.cards) {
+                cardsHtml += `<img src="${c.imagePath}" class="card">`;
+            }
+            document.getElementById('my-cards').innerHTML = cardsHtml;
+            
+            let prevHtml = '';
+            for(let c of me.previousCards) {
+                prevHtml += `<img src="${c.imagePath}" class="card small">`;
+            }
+            document.getElementById('my-prev-cards').innerHTML = prevHtml;
+
+            // Render Opponents
+            for(let i=1; i<5; i++) {
+                let p = game.players[i];
+                let pDiv = document.getElementById(`p${i}`);
+                let status = p.folded ? "(Folded)" : `Bet: ${p.currentBet}`;
+                let cardCount = p.cards.length;
+                
+                // Show cards if visible
+                let oppCardsHtml = '';
+                for(let c of p.cards) {
+                    if(c.visible) oppCardsHtml += `<img src="${c.imagePath}" class="card small">`;
+                    else oppCardsHtml += `<img src="assets/images/back.png" class="card small">`;
+                }
+                
+                // If round over or specific conditions, might show previous
+                let oppPrevHtml = '';
+                for(let c of p.previousCards) {
+                     if(c.visible) oppPrevHtml += `<img src="${c.imagePath}" class="card xsmall">`;
+                     else oppPrevHtml += `<img src="assets/images/back.png" class="card xsmall">`;
+                }
+
+                pDiv.innerHTML = `
+                    <div class="p-name">${p.name} (${p.fiches})</div>
+                    <div class="p-status">${status}</div>
+                    <div class="p-cards">${oppCardsHtml}</div>
+                    <div class="p-prev">${oppPrevHtml}</div>
+                `;
+                
+                if (game.currentPlayerIndex === i) pDiv.classList.add('active');
+                else pDiv.classList.remove('active');
+            }
+
+            // Controls
+            let controls = document.getElementById('controls');
+            let declControls = document.getElementById('declare-controls');
+            
+            if (game.state === "BETTING" && game.currentPlayerIndex === 0) {
+                controls.style.display = 'block';
+                declControls.style.display = 'none';
+            } else if (game.state === "TALKING" && game.currentPlayerIndex === 0) {
+                controls.style.display = 'block';
+                declControls.style.display = 'block';
+            } else if (game.state === "DECLARATION" && me.declaration === null && !me.folded) {
+                 controls.style.display = 'block';
+                 declControls.style.display = 'block';
+            } else {
+                controls.style.display = 'none';
+            }
+            
+            if (game.state === "ROUND_OVER") {
+                document.getElementById('start-btn').style.display = 'block';
+                document.getElementById('start-btn').innerText = "Next Phase / Round";
+            }
+        }
+
+        function uiAction(act) {
+            if (act === 'declare') {
+                let val = document.getElementById('decl-val').value;
+                if (game.state === "TALKING") {
+                    game.resolveDeclaration(0, parseInt(val));
+                } else {
+                    game.players[0].declaration = parseInt(val);
+                    game.checkShowdownReady();
+                }
+            } else if (act === 'raise') {
+                game.step('raise', game.currentBet + 1);
+            } else {
+                game.step(act);
+            }
+        }
+    </script>
+</body>
+</html>

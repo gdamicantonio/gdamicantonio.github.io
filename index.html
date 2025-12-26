@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> UNO | Falentex </title>
+    <link rel="icon" type="image" href="./assets/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa:700" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div id="loading">
+        <div id="spinner"></div>
+    </div>
+    <div id="particles-js"></div>
+    <div id="box">
+        <div class="box1 onlywide animated bounceOutLeft" style="animation-delay: 1700ms;"></div>
+        <div class="box2 onlywide animated bounceOutLeft" style="animation-delay: 1800ms;"></div>
+        <div class="box2 onlywide animated bounceOutLeft" style="animation-delay: 1900ms;"></div>
+        <div class="box2 animated bounceOutRight" style="animation-delay: 1900ms;"></div>
+        <div class="box2 onlywide animated bounceOutRight" style="animation-delay: 1800ms;"></div>
+        <div class="box2 onlywide animated bounceOutRight" style="animation-delay: 1700ms;"></div>
+    </div>
+    <a id="regole" onclick="showregole()" class="animated fadeIn" style="animation-delay: 1000ms;">regole</a>
+    <a id="lofi" onclick="showlofi()" class="animated fadeIn" style="animation-delay: 1000ms;">lofi</a>
+    <a id="classifica" onclick="showleaderboard()" class="animated fadeIn" style="animation-delay: 1000ms;">classifica</a>
+    <div id="middle" class="animated slideInDown" style="animation-delay: 2000ms;">
+        <h1>Uno Falentex.</h1>
+        <h2>Perchè la violenza non è mai la soluzione, ma a volte è divertente.</h2>
+        <div id="menu">
+            <a onclick="showregole()">Regole</a>
+            <a onclick="showlofi()">LoFi</a>
+            <a onclick="showleaderboard()">Classifica</a>
+            <a href="./stoppa/index.html">Stoppa</a>
+        </div>
+        <table>
+            <tr>
+                <td class="animated zoomIn" style="animation-delay:2.6s;"><a class="social"
+                        href="https://instagram.com/falentex/"><i class="fab fa-instagram"></i></a></td>
+            </tr>
+        </table>
+    </div>
+    <div id="lofi_container" class="container">
+        <div onclick="closelofi()"><i class="fas fa-angle-right"></i></div>
+        <h1>LoFi</h1>
+        <section>
+            <audio controls>
+                <source src="./assets/Regole1_mastered.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </section>
+    </div>
+    <div id ="classifica_container" class="container">
+        <div onclick="closeleaderboard()"><i class="fas fa-angle-left"></i></div>
+        <h1>Classifica</h1>
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: center;
+            }
+            button {
+                padding: 10px;
+                margin: 5px;
+            }
+            form {
+                margin-top: 20px;
+            }
+            input {
+                padding: 8px;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            img {
+                max-width: 15%; /* Set the maximum width to the actual image width */
+                height: auto;    /* Maintain the aspect ratio */
+                display: block;
+                margin: 0 auto;   /* Center the image horizontally */
+                position: absolute;
+                top: 20;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            @media (max-width: 600px) {
+                th, td {
+                    font-size: 14px;
+                }
+            }
+        </style>
+        
+        <table id="scoreboard">
+            <tr>
+                <th>Player</th>
+                <th>Wins</th>
+                <th>Losses</th>
+            </tr>
+        </table>
+        <div>
+            <button id="toggleButton" class="MuiButton-root MuiButton-contained" onclick="toggleView()">+/-</button>
+            <button id="updateButton" class="MuiButton-root MuiButton-contained" onclick="updateData()">Update Data</button>
+        </div>
+        <form>
+            <label for="playerName">Player Name:</label>
+            <input type="text" id="playerName" placeholder="Enter player's name">
+        
+            <label for="playerWins">Wins:</label>
+            <input type="number" id="playerWins" value="0">
+        
+            <label for="playerLosses">Losses:</label>
+            <input type="number" id="playerLosses" value="0">
+        
+            <button type="button" onclick="addPlayer()">Add Player</button>
+        </form>
+    </div>
+    <div id="regole_container" class="container">
+        <div onclick="closeregole()"><i class="fas fa-angle-left"></i></div>
+        <h1>Regole</h1>
+        <section>
+            <p>
+                <dl>
+                <dt>1. Chi sbaglia si prende 4 carte (e sta zitto) quindi leggi bene il seguente regolamento</dt>
+                <dt>2. INIZIO PARTITA:</dt>
+                    <dd>a. si danno 7 carte in senso orario</dd>
+                    <dd>b. Si inizia la partita con una carta scoperta sul tavolo</dd>
+                <dt>3. Se non si hanno carte utili, si deve pescare (si può giocare la carta pescata) e passare dicendo
+                    “PASSO”</dt>
+                <dt>4. ZERO: Lo 0 è un +2 che può essere lanciato a chi si vuole. Nel regolamento lo considereremo
+                    nella categoria “+2”</dt>
+                <dt>5. MULTIMOSSA, data una carta numero X in campo:</dt>
+                    <dd>a. si possono buttare tutte le carte simili a X che si hanno (indipendentemente dal colore)</dd>
+                <dt>6. Con il +2 e +4 (se non si ha da rispondere), si salta il turno e si sta zitti</dt>
+                <dt>7. +4:</dt>
+                    <dd>a. il +4 si può buttare solo se non si ha nient’altro da buttare</dd>
+                    <dd>b. al +4 si può rispondere con un un +4 +2 solo se è dello stesso colore scelto</dd>
+                <dt>8. DUBITO:</dt>
+                    <dd>a. quando viene buttato il +4, il giocatore vittima può scegliere di dubitare il fatto che
+                            il giocatore infame non abbia altre carte da giocare.</dd>
+                    <dd> b. Se l’infame aveva carte da giocare si prende +4, sennò il giocatore vittima +6.</dd>
+
+                <dt>8. RISPOSTE ALLE CARTE INFAMI:</dt>
+                    <dd>a. Si può rispondere a un +2 o +4 con un solo +2, +4</dd>
+                <dt>9. ANTICIPO:</dt>
+                    <dd>a. Se sul tavolo c’è una carta identica in numero e colore ad una carta che si possiede, puoi
+                        giocare quest’ultima anche se non è il tuo turno, urlando ‘Anticipo’</dd>
+                    <dd>b. Il giocatore che anticipa deve buttare la carta prima del giocatore del turno. Se il giocatore
+                        di turno non butta niente non succede niente, sennò prende +4 il giocatore che ha buttato
+                        l’ultima carta.</dd>
+                    <dd>c. Chi sbaglia le riprende in mano</dd>
+                <dt>10. CHIUSURA:</dt>
+                    <dd>a. quando sei rimasto con UNA carta in mano, devi dire UNO prima che il giocatore
+                        successivo peschi e che qualcuno se ne accorga</dd>
+                    <dd>b. se non dici UNO, prendi +2</dd>
+                    <dd>c. con il +4 o con l’invisibile non si può chiudere</dd>
+                    <dd>d. in due, se chiudi con un +2 l’altro giocatore ti può rispondere</dd>
+
+                PENITENZE
+                <dt>11. Chi contesta e ha torto +4</dt>
+                <dt>12. Inizia l’ultimo che ha fatto la cacca</dt>
+                <dt>13. Chi perde da le carte (come minimo)</dt>
+                <dt>14. Se guardi il cellulare a meno di chiamate in arrivo, prendi +2</dt>
+
+                ALTRE REGOLE
+                <dt>15. Chi non finisce a leggere il regolamento prima che la partita sia iniziata si prende 4 carte. </dt>    
+                </dl>
+
+            </p>
+        </section>
+    </div>
+    <img src="./assets/Falentex.png" alt="Description of your image">
+
+    <script src="index.js" type="text/javascript"></script>
+    <script src="particles.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function addPlayer() {
+            var playerName = document.getElementById('playerName').value.trim();
+            if (playerName !== "") {
+                var wins = parseInt(document.getElementById('playerWins').value) || 0;
+                var losses = parseInt(document.getElementById('playerLosses').value) || 0;
+                var scoreboard = document.getElementById('scoreboard');
+                var newRow = scoreboard.insertRow(scoreboard.rows.length);
+                var cell1 = newRow.insertCell(0);
+                cell1.textContent = playerName;
+                var cell2 = newRow.insertCell(1);
+                cell2.textContent = wins;
+                var cell3 = newRow.insertCell(2);
+                cell3.textContent = losses;
+                document.getElementById('playerName').value = "";
+                document.getElementById('playerWins').value = 0;
+                document.getElementById('playerLosses').value = 0;
+
+                var winButton = document.createElement("button");
+                winButton.textContent = "Win";
+                winButton.onclick = function () { addWin(newRow); };
+                newRow.appendChild(winButton);
+    
+                var lossButton = document.createElement("button");
+                lossButton.textContent = "Loss";
+                lossButton.onclick = function () { addLoss(newRow); };
+                newRow.appendChild(lossButton);
+                updateView();
+            }
+        }
+        function addWin(playerRow) {
+            var winsElement = playerRow.cells[1];
+            var currentWins = parseInt(winsElement.textContent);
+            winsElement.textContent = currentWins + 1;
+        }
+        function addLoss(playerRow) {
+            var lossesElement = playerRow.cells[2];
+            var currentLosses = parseInt(lossesElement.textContent);
+            lossesElement.textContent = currentLosses + 1;
+        }
+
+        var numbersView = true; 
+        function toggleView() {
+            numbersView = !numbersView;
+            updateView();
+        }
+        var originalWins = [];
+        var originalLosses = [];
+        function updateView() {
+            var winsCells = document.querySelectorAll('td:nth-child(2)');
+            var lossesCells = document.querySelectorAll('td:nth-child(3)');
+    
+            if (numbersView) {
+                winsCells.forEach((cell, index) => {
+                    const originalValue = originalWins[index] || 0;
+                    cell.textContent = originalValue;
+                });
+    
+                lossesCells.forEach((cell, index) => {
+                    const originalValue = originalLosses[index] || 0;
+                    cell.textContent = originalValue;
+                });
+            } else {
+                winsCells.forEach((cell, index) => {
+                    const wins = parseInt(cell.textContent);
+                    originalWins[index] = wins;
+                    cell.textContent = wins > 0 ? "+".repeat(wins) : "";
+                });
+    
+                lossesCells.forEach((cell, index) => {
+                    const losses = parseInt(cell.textContent);
+                    originalLosses[index] = losses;
+                    cell.textContent = losses > 0 ? "-".repeat(losses) : "";
+                });
+            }
+        }
+        
+        function loadData() {
+            fetch('https://raw.githubusercontent.com/gdamicantonio/gdamicantonio.github.io/assets/data.csv')
+                .then(response => response.text())
+                .then(data => {
+                    parseCSV(data);
+                });
+        }
+
+        function updateData() {
+            const csvData = serializeTableToCSV();
+            const apiUrl = 'https://raw.githubusercontent.com/gdamicantonio/gdamicantonio.github.io/assets/data.csv';
+            const encodedData = btoa(csvData); // Base64 encode the CSV data
+            fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer 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`
+                },
+                body: JSON.stringify({
+                    message: 'Update data.csv',
+                    content: encodedData,
+                    sha: getSHA(), // Get the current SHA of the file
+                    branch: 'main' // Change if your default branch is different
+                })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Data updated successfully.');
+                } else {
+                    console.error('Failed to update data.');
+                }
+            });
+        }
+
+        function getSHA() {
+            const apiUrl = 'https://api.github.com/repos/gdamicantonio/gdamicantonio.github.io/assets/data.csv';
+            return fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => data.sha)
+                .catch(error => {
+                    console.error('Error fetching SHA:', error);
+                    return null;
+                });
+        }
+        function parseCSV(csvData) {
+            const rows = csvData.split('\n');
+            for (let i = 1; i < rows.length; i++) {
+                const columns = rows[i].split(',');
+            }
+        }
+        function serializeTableToCSV() {
+            let csvData = 'Player,Wins,Losses\n';
+            return csvData;
+        }
+
+        loadData();
+
+    </script>
+
+</body>
+
+</html>
