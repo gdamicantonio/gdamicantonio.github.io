@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Gioco Stoppa</title>
+    <title>Stoppa - Gioco di Carte</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <div id="table">
             <div id="pot-info">Piatto: <span id="pot-val">0</span></div>
-            <div id="message-area">Benvenuto</div>
-            
+            <div id="message-area">Benvenuto a Stoppa!</div>
+
             <div id="opponents">
-                <!-- Opponents 1, 2, 3, 4 -->
                 <div class="player p1" id="p1"></div>
                 <div class="player p2" id="p2"></div>
                 <div class="player p3" id="p3"></div>
@@ -27,51 +26,139 @@
                     <span id="my-name">Io</span>
                     <span id="my-fiches">Fiches: 20</span>
                 </div>
-                <div id="my-cards"></div>
                 <div id="my-prev-cards"></div>
+                <div id="my-cards"></div>
             </div>
 
             <div id="controls">
-                <button onclick="uiAction('fold')">Lascia</button>
-                <button onclick="uiAction('call')">Vedi</button>
-                <button onclick="uiAction('raise')">Rilancia</button>
+                <button onclick="uiAction('fold')">Passo</button>
+                <button onclick="uiAction('call')">Vedo</button>
+                <button onclick="openRaiseModal()">Rilancio</button>
                 <div id="declare-controls" style="display:none;">
                     <input type="number" id="decl-val" value="0">
                     <button onclick="uiAction('declare')">Dichiara</button>
                 </div>
             </div>
-            
-            <button id="start-btn" onclick="startGame()">Inizia Mano</button>
+
+            <button id="start-btn" onclick="showSettings()">Inizia Partita</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h3>Impostazioni Partita</h3>
+
+            <div class="setting-group">
+                <label>Difficoltà IA:</label>
+                <select id="difficulty-select">
+                    <option value="principiante">Principiante</option>
+                    <option value="intermedio" selected>Intermedio</option>
+                    <option value="esperto">Esperto</option>
+                    <option value="maestro">Maestro</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Stile di gioco IA:</label>
+                <select id="risk-select">
+                    <option value="misto" selected>Misto (vari stili)</option>
+                    <option value="prudente">Prudente</option>
+                    <option value="equilibrato">Equilibrato</option>
+                    <option value="aggressivo">Aggressivo</option>
+                </select>
+            </div>
+
+            <div class="modal-buttons">
+                <button onclick="startGameWithSettings()" class="confirm-btn">Gioca!</button>
+                <button onclick="closeSettings()" class="cancel-btn">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raise Modal -->
+    <div id="raise-modal" class="modal">
+        <div class="modal-content">
+            <h3>Scegli il Rilancio</h3>
+            <div id="raise-info"></div>
+            <div class="slider-container">
+                <input type="range" id="raise-slider" min="1" max="20" value="1">
+                <div class="slider-labels">
+                    <span id="raise-min-label">1</span>
+                    <span id="raise-max-label">20</span>
+                </div>
+            </div>
+            <div class="raise-display">
+                Rilancio a: <span id="raise-display-val">1</span>
+            </div>
+            <div class="quick-buttons">
+                <button onclick="quickRaise(1)">+1</button>
+                <button onclick="quickRaise(2)">+2</button>
+                <button onclick="quickRaise(5)">+5</button>
+                <button onclick="setMaxRaise()" class="max-btn">Max</button>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="submitRaise()" class="confirm-btn">Conferma</button>
+                <button onclick="closeRaiseModal()" class="cancel-btn">Annulla</button>
+            </div>
         </div>
     </div>
 
     <script src="game.js"></script>
     <script>
-        let game = new StoppaGame(1);
-        let myIdx = 0; // Assuming P1 is human
+        let game = null;
+        let myIdx = 0;
+        let raiseMin = 1;
+        let raiseMax = 20;
 
-        function startGame() {
+        function showSettings() {
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function startGameWithSettings() {
+            const difficulty = document.getElementById('difficulty-select').value;
+            const riskStyle = document.getElementById('risk-select').value;
+
+            // Crea nuovo gioco con impostazioni
+            game = new StoppaGame(1, difficulty, riskStyle);
+            game.onStateUpdate = updateUI;
+
+            closeSettings();
             document.getElementById('start-btn').style.display = 'none';
             game.startRound();
             updateUI();
         }
 
-        game.onStateUpdate = updateUI;
+        function startGame() {
+            if (!game) {
+                showSettings();
+                return;
+            }
+            document.getElementById('start-btn').style.display = 'none';
+            game.startRound();
+            updateUI();
+        }
 
         function updateUI() {
+            if (!game) return;
+
             document.getElementById('pot-val').innerText = game.pot;
             document.getElementById('message-area').innerText = game.message;
 
             // Render Me
             let me = game.players[0];
             document.getElementById('my-fiches').innerText = `Fiches: ${me.fiches} (Puntata: ${me.currentBet})`;
-            
+
             let cardsHtml = '';
             for(let c of me.cards) {
                 cardsHtml += `<img src="${c.imagePath}" class="card">`;
             }
             document.getElementById('my-cards').innerHTML = cardsHtml;
-            
+
             let prevHtml = '';
             for(let c of me.previousCards) {
                 prevHtml += `<img src="${c.imagePath}" class="card small">`;
@@ -79,20 +166,19 @@
             document.getElementById('my-prev-cards').innerHTML = prevHtml;
 
             // Render Opponents
+            const aiNames = ["Marco", "Luca", "Giuseppe", "Antonio"];
             for(let i=1; i<5; i++) {
                 let p = game.players[i];
                 let pDiv = document.getElementById(`p${i}`);
-                let status = p.folded ? "(Lasciato)" : `Puntata: ${p.currentBet}`;
+                let status = p.folded ? "(Passato)" : `Puntata: ${p.currentBet}`;
                 let cardCount = p.cards.length;
-                
-                // Show cards if visible
+
                 let oppCardsHtml = '';
                 for(let c of p.cards) {
                     if(c.visible) oppCardsHtml += `<img src="${c.imagePath}" class="card small">`;
                     else oppCardsHtml += `<img src="assets/images/back.png" class="card small">`;
                 }
-                
-                // If round over or specific conditions, might show previous
+
                 let oppPrevHtml = '';
                 for(let c of p.previousCards) {
                      if(c.visible) oppPrevHtml += `<img src="${c.imagePath}" class="card xsmall">`;
@@ -100,12 +186,12 @@
                 }
 
                 pDiv.innerHTML = `
-                    <div class="p-name">${p.name} (${p.fiches})</div>
+                    <div class="p-name">${aiNames[i-1]} (${p.fiches})</div>
                     <div class="p-status">${status}</div>
                     <div class="p-cards">${oppCardsHtml}</div>
                     <div class="p-prev">${oppPrevHtml}</div>
                 `;
-                
+
                 if (game.currentPlayerIndex === i) pDiv.classList.add('active');
                 else pDiv.classList.remove('active');
             }
@@ -113,24 +199,70 @@
             // Controls
             let controls = document.getElementById('controls');
             let declControls = document.getElementById('declare-controls');
-            
+
             if (game.state === "BETTING" && game.currentPlayerIndex === 0) {
-                controls.style.display = 'block';
+                controls.style.display = 'flex';
                 declControls.style.display = 'none';
             } else if (game.state === "TALKING" && game.currentPlayerIndex === 0) {
-                controls.style.display = 'block';
+                controls.style.display = 'flex';
                 declControls.style.display = 'block';
             } else if (game.state === "DECLARATION" && me.declaration === null && !me.folded) {
-                 controls.style.display = 'block';
+                 controls.style.display = 'flex';
                  declControls.style.display = 'block';
             } else {
                 controls.style.display = 'none';
             }
-            
+
             if (game.state === "ROUND_OVER") {
                 document.getElementById('start-btn').style.display = 'block';
-                document.getElementById('start-btn').innerText = "Prossima Fase / Mano";
+                document.getElementById('start-btn').innerText = "Prossima Mano";
             }
+        }
+
+        function openRaiseModal() {
+            document.getElementById('raise-modal').style.display = 'flex';
+
+            let me = game.players[0];
+            raiseMin = game.currentBet + 1;
+            raiseMax = Math.min(20, me.fiches + me.currentBet);
+
+            let slider = document.getElementById('raise-slider');
+            slider.min = raiseMin;
+            slider.max = raiseMax;
+            slider.value = raiseMin;
+
+            document.getElementById('raise-min-label').textContent = raiseMin;
+            document.getElementById('raise-max-label').textContent = raiseMax;
+            document.getElementById('raise-display-val').textContent = raiseMin;
+            document.getElementById('raise-info').innerHTML =
+                `Puntata attuale: <strong>${game.currentBet}</strong> | Fiches: <strong>${me.fiches}</strong>`;
+
+            slider.oninput = function() {
+                document.getElementById('raise-display-val').textContent = this.value;
+            };
+        }
+
+        function quickRaise(amount) {
+            let slider = document.getElementById('raise-slider');
+            let newVal = Math.min(raiseMax, parseInt(slider.value) + amount);
+            slider.value = newVal;
+            document.getElementById('raise-display-val').textContent = newVal;
+        }
+
+        function setMaxRaise() {
+            let slider = document.getElementById('raise-slider');
+            slider.value = raiseMax;
+            document.getElementById('raise-display-val').textContent = raiseMax;
+        }
+
+        function submitRaise() {
+            let val = parseInt(document.getElementById('raise-slider').value);
+            game.step('raise', val);
+            closeRaiseModal();
+        }
+
+        function closeRaiseModal() {
+            document.getElementById('raise-modal').style.display = 'none';
         }
 
         function uiAction(act) {
@@ -143,7 +275,7 @@
                     game.checkShowdownReady();
                 }
             } else if (act === 'raise') {
-                game.step('raise', game.currentBet + 1);
+                openRaiseModal();
             } else {
                 game.step(act);
             }
