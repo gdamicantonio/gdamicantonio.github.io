@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stoppa Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Gioco Stoppa</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <div id="table">
-            <div id="pot-info">Pot: <span id="pot-val">0</span></div>
-            <div id="message-area">Welcome</div>
+            <div id="pot-info">Piatto: <span id="pot-val">0</span></div>
+            <div id="message-area">Benvenuto</div>
             
             <div id="opponents">
                 <!-- Opponents 1, 2, 3, 4 -->
@@ -22,7 +24,7 @@
 
             <div id="my-area">
                 <div id="my-info">
-                    <span id="my-name">Me</span>
+                    <span id="my-name">Io</span>
                     <span id="my-fiches">Fiches: 20</span>
                 </div>
                 <div id="my-cards"></div>
@@ -30,16 +32,16 @@
             </div>
 
             <div id="controls">
-                <button onclick="uiAction('fold')">Fold</button>
-                <button onclick="uiAction('call')">Call</button>
-                <button onclick="uiAction('raise')">Raise</button>
+                <button onclick="uiAction('fold')">Lascia</button>
+                <button onclick="uiAction('call')">Vedi</button>
+                <button onclick="uiAction('raise')">Rilancia</button>
                 <div id="declare-controls" style="display:none;">
                     <input type="number" id="decl-val" value="0">
-                    <button onclick="uiAction('declare')">Declare</button>
+                    <button onclick="uiAction('declare')">Dichiara</button>
                 </div>
             </div>
             
-            <button id="start-btn" onclick="startGame()">Start Round</button>
+            <button id="start-btn" onclick="startGame()">Inizia Mano</button>
         </div>
     </div>
 
@@ -62,7 +64,7 @@
 
             // Render Me
             let me = game.players[0];
-            document.getElementById('my-fiches').innerText = `Fiches: ${me.fiches} (Bet: ${me.currentBet})`;
+            document.getElementById('my-fiches').innerText = `Fiches: ${me.fiches} (Puntata: ${me.currentBet})`;
             
             let cardsHtml = '';
             for(let c of me.cards) {
@@ -80,7 +82,7 @@
             for(let i=1; i<5; i++) {
                 let p = game.players[i];
                 let pDiv = document.getElementById(`p${i}`);
-                let status = p.folded ? "(Folded)" : `Bet: ${p.currentBet}`;
+                let status = p.folded ? "(Lasciato)" : `Puntata: ${p.currentBet}`;
                 let cardCount = p.cards.length;
                 
                 // Show cards if visible
@@ -127,7 +129,7 @@
             
             if (game.state === "ROUND_OVER") {
                 document.getElementById('start-btn').style.display = 'block';
-                document.getElementById('start-btn').innerText = "Next Phase / Round";
+                document.getElementById('start-btn').innerText = "Prossima Fase / Mano";
             }
         }
 

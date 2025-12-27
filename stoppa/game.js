@@ -49,14 +49,14 @@ class StoppaGame {
         this.currentBet = 0;
         this.phase = 0; // 0,1,2,3
         this.state = "WAITING"; // WAITING, BETTING, TALKING, DECLARATION, SHOWDOWN, ROUND_OVER
-        this.message = "Welcome to Stoppa!";
+        this.message = "Benvenuto a Stoppa!";
         this.dealChoice = 3;
         this.lastRaiser = 0;
         
         // Initialize Players
         for (let i = 0; i < 5; i++) {
             let isAi = i >= humanCount;
-            this.players.push(new Player(i, isAi ? `Agent ${i+1}` : `Player ${i+1}`, isAi));
+            this.players.push(new Player(i, isAi ? `Agente ${i+1}` : `Giocatore ${i+1}`, isAi));
         }
         
         // UI Callback
@@ -64,7 +64,7 @@ class StoppaGame {
     }
 
     log(msg) {
-        console.log(`[Game] ${msg}`);
+        console.log(`[Gioco] ${msg}`);
         this.message = msg;
         if (this.onStateUpdate) this.onStateUpdate();
     }
@@ -100,7 +100,7 @@ class StoppaGame {
         
         for (let p of this.players) p.resetRound();
         
-        this.log(`${this.players[this.dealerIndex].name} is the dealer.`);
+        this.log(`${this.players[this.dealerIndex].name} è il mazziere.`);
         
         // AI Dealer
         if (this.players[this.dealerIndex].isAi) {
@@ -144,7 +144,7 @@ class StoppaGame {
             p.declaration = null;
         }
 
-        this.log("Betting started.");
+        this.log("Scommesse aperte.");
         this.processTurn();
     }
 
@@ -200,14 +200,30 @@ class StoppaGame {
         if (action === "fold") {
             p.folded = true;
             p.currentBet = -1;
-            this.log(`${p.name} folded.`);
+            this.log(`${p.name} ha lasciato.`);
+
+            // CRITICAL FIX: If the player who folded was the lastRaiser,
+            // update lastRaiser to next active player to prevent infinite loop
+            if (this.currentPlayerIndex === this.lastRaiser) {
+                let active = this.players.filter(pl => !pl.folded);
+                if (active.length > 0) {
+                    for (let i = 1; i < 6; i++) {
+                        let nextIdx = (this.currentPlayerIndex + i) % 5;
+                        if (!this.players[nextIdx].folded) {
+                            this.lastRaiser = nextIdx;
+                            console.log(`lastRaiser updated to ${nextIdx} (original folded)`);
+                            break;
+                        }
+                    }
+                }
+            }
         } else if (action === "call") {
             let cost = this.currentBet - p.currentBet;
             if (p.fiches < cost) cost = p.fiches;
             p.fiches -= cost;
             p.currentBet += cost;
             this.handPot += cost;
-            this.log(`${p.name} called.`);
+            this.log(`${p.name} ha visto.`);
         } else if (action === "raise") {
             if (amount > 20) amount = 20;
             if (amount <= this.currentBet) amount = this.currentBet + 1;
@@ -222,7 +238,7 @@ class StoppaGame {
             this.currentBet = amount;
             this.handPot += cost;
             this.lastRaiser = this.currentPlayerIndex;
-            this.log(`${p.name} raised to ${amount}.`);
+            this.log(`${p.name} ha rilanciato a ${amount}.`);
         }
 
         this.advanceTurn();
@@ -242,12 +258,21 @@ class StoppaGame {
             return;
         }
 
+        // SAFEGUARD: If lastRaiser is folded, update to first active player
+        if (this.players[this.lastRaiser].folded) {
+            for (let p of active) {
+                this.lastRaiser = p.index;
+                console.log(`Safeguard: lastRaiser was folded, updated to ${p.index}`);
+                break;
+            }
+        }
+
         let betsMatched = active.every(p => p.currentBet === this.currentBet);
         if (betsMatched && this.currentPlayerIndex === this.lastRaiser) {
             if (this.currentBet > 0) {
                 this.state = "TALKING";
                 this.currentPlayerIndex = this.lastRaiser;
-                this.log(`${this.players[this.currentPlayerIndex].name} is talking.`);
+                this.log(`${this.players[this.currentPlayerIndex].name} sta parlando.`);
                 this.processTurn();
             } else {
                 this.startDeclaration();
@@ -259,7 +284,7 @@ class StoppaGame {
 
     startDeclaration() {
         this.state = "DECLARATION";
-        this.log("Declaration Phase.");
+        this.log("Fase di Dichiarazione.");
         
         // Auto declare for AI
         for (let p of this.players) {
@@ -318,12 +343,12 @@ class StoppaGame {
             if (oppScore > actual) {
                 winner = bestOpp;
                 winScore = oppScore;
-                this.log(`${declarer.name} stopped by ${winner.name} (${winScore})!`);
+                this.log(`${declarer.name} stoppato da ${winner.name} (${winScore})!`);
             }
         }
 
         if (winner === declarer) {
-            this.log(`${winner.name} wins declaration (${winScore})!`);
+            this.log(`${winner.name} vince la dichiarazione (${winScore})!`);
         }
 
         this.revealWinner(winner);
@@ -335,7 +360,7 @@ class StoppaGame {
 
         active.sort((a, b) => this.calculateScore(b).score - this.calculateScore(a).score);
         let winner = active[0];
-        this.log(`${winner.name} wins showdown!`);
+        this.log(`${winner.name} vince lo showdown!`);
         this.revealWinner(winner);
     }
 
@@ -363,7 +388,7 @@ class StoppaGame {
         this.phase++;
         if (this.phase > 3) {
             this.state = "ROUND_OVER";
-            this.log(`Round Over. ${winner.name} won!`);
+            this.log(`Mano terminata. ${winner.name} ha vinto!`);
         } else {
             setTimeout(() => this.dealCards(), 2000);
         }

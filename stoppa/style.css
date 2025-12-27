@@ -1,9 +1,14 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #222;
     color: white;
     margin: 0;
     overflow: hidden;
+    touch-action: manipulation;
 }
 
 #game-container {
@@ -12,16 +17,26 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #0D4F0D; /* Felt Green */
+    background-color: #0D4F0D;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #table {
     position: relative;
-    width: 90%;
-    height: 90%;
-    border-radius: 50px;
+    width: 95%;
+    height: 95%;
+    max-width: 900px;
+    border-radius: 30px;
     background-color: #106010;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 600px) {
+    #table {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
 }
 
 #pot-info {
@@ -47,14 +62,26 @@ body {
 
 .player {
     position: absolute;
-    width: 150px;
+    width: 120px;
     text-align: center;
+    font-size: 0.9em;
 }
 
-.p1 { top: 10px; left: 20px; }
-.p2 { top: 10px; right: 20px; }
-.p3 { bottom: 150px; left: 20px; }
-.p4 { bottom: 150px; right: 20px; }
+.p1 { top: 10%; left: 5%; }
+.p2 { top: 10%; right: 5%; }
+.p3 { top: 45%; left: 5%; }
+.p4 { top: 45%; right: 5%; }
+
+@media (max-width: 600px) {
+    .player {
+        width: 80px;
+        font-size: 0.75em;
+    }
+    .p1 { top: 8%; left: 3%; }
+    .p2 { top: 8%; right: 3%; }
+    .p3 { top: 40%; left: 3%; }
+    .p4 { top: 40%; right: 3%; }
+}
 
 .player.active .p-name {
     color: #ff0;
@@ -62,60 +89,144 @@ body {
 }
 
 .card {
-    width: 60px;
-    height: 90px;
+    width: 55px;
+    height: 82px;
     margin: 2px;
     background-color: white;
     border-radius: 5px;
+    object-fit: contain;
 }
 
 .card.small {
-    width: 40px;
-    height: 60px;
+    width: 35px;
+    height: 52px;
 }
 .card.xsmall {
-    width: 30px;
-    height: 45px;
+    width: 25px;
+    height: 37px;
+}
+
+@media (max-width: 600px) {
+    .card {
+        width: 40px;
+        height: 60px;
+    }
+    .card.small {
+        width: 28px;
+        height: 42px;
+    }
+    .card.xsmall {
+        width: 20px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 400px) {
+    .card {
+        width: 35px;
+        height: 52px;
+    }
+    .card.small {
+        width: 22px;
+        height: 33px;
+    }
+    .card.xsmall {
+        width: 18px;
+        height: 27px;
+    }
 }
 
 #my-area {
     position: absolute;
-    bottom: 10px;
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+#my-cards, #my-prev-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 5px;
+}
+
+#my-prev-cards {
+    opacity: 0.7;
 }
 
 #controls {
     position: absolute;
-    bottom: 150px;
+    bottom: 22%;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0,0,0,0.6);
     padding: 10px;
     border-radius: 10px;
     display: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 90%;
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 8px 15px;
+    font-size: 14px;
     cursor: pointer;
     background: #333;
     color: white;
     border: 1px solid #555;
     border-radius: 5px;
+    min-width: 60px;
 }
 
 button:hover {
     background: #555;
 }
 
+button:active {
+    background: #666;
+}
+
 #start-btn {
     position: absolute;
-    top: 60%;
+    top: 55%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 20px;
+    font-size: 18px;
     background: #ff4500;
+    padding: 12px 25px;
+}
+
+@media (max-width: 600px) {
+    #my-area {
+        bottom: 3%;
+    }
+    #controls {
+        bottom: 18%;
+        padding: 8px;
+    }
+    button {
+        padding: 8px 10px;
+        font-size: 12px;
+        min-width: 50px;
+    }
+    #start-btn {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    #controls {
+        bottom: 16%;
+    }
+    button {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
 }
